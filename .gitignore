@@ -1,0 +1,5 @@
+# temporary files
+temp/
+
+# output files
+out/
