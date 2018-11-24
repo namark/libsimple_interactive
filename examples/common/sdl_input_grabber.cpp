@@ -8,6 +8,11 @@ sdl_input_grabber::sdl_input_grabber() :
 	simple::sdlcore::utils::throw_error(window.get());
 }
 
+void sdl_input_grabber::sdl_window_del::operator()(SDL_Window * w) noexcept
+{
+	SDL_DestroyWindow(w);
+}
+
 void sdl_input_grabber::grab() noexcept
 {
 	SDL_SetWindowGrab(window.get(), SDL_TRUE);

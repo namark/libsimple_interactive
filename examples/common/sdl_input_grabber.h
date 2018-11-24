@@ -9,10 +9,7 @@ class sdl_input_grabber
 {
 	struct sdl_window_del
 	{
-		void operator()(SDL_Window * w) noexcept
-		{
-			SDL_DestroyWindow(w);
-		}
+		void operator()(SDL_Window*) noexcept;
 	};
 
 	simple::sdlcore::initializer video_init;
