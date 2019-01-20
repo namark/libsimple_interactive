@@ -495,6 +495,8 @@ namespace simple::interactive
 	scancode to_scancode(keycode) noexcept;
 	keycode to_keycode(scancode) noexcept;
 
+	bool pressed(scancode) noexcept;
+
 } // namespace simple::interactive
 
 #endif /* end of include guard */
