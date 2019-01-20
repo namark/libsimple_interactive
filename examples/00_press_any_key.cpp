@@ -4,8 +4,6 @@
 
 #include "simple/interactive/initializer.h"
 #include "simple/interactive/event.h"
-#include "simple/support/function_utils.hpp"
-#include "simple/support/misc.hpp"
 #include "common/sdl_input_grabber.h"
 
 #include "common/sdl_input_grabber.cpp"
