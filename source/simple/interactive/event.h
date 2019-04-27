@@ -48,13 +48,17 @@ namespace simple::interactive
 
 	constexpr uint32_t touch_mouse_id = SDL_TOUCH_MOUSEID;
 
-	struct common_data
+	struct event_data
 	{
-		uint32_t window_id;
 		std::chrono::milliseconds timestamp;
 	};
 
-	struct key_data : public common_data
+	struct window_event_data : public event_data
+	{
+		uint32_t window_id;
+	};
+
+	struct key_data : public window_event_data
 	{
 		enum keycode keycode;
 		enum scancode scancode;
@@ -62,13 +66,13 @@ namespace simple::interactive
 		uint8_t repeat;
 	};
 
-	struct common_mouse_data : public common_data
+	struct mouse_data : public window_event_data
 	{
 		uint32_t mouse_id;
 		int2 position;
 	};
 
-	struct mouse_button_data : public common_mouse_data
+	struct mouse_button_data : public mouse_data
 	{
 		mouse_button button;
 		keystate state;
@@ -77,13 +81,13 @@ namespace simple::interactive
 #endif
 	};
 
-	struct mouse_motion_data : public common_mouse_data
+	struct mouse_motion_data : public mouse_data
 	{
 		int2 motion;
 		mouse_button_mask button_state;
 	};
 
-	struct mouse_wheel_data : public common_mouse_data
+	struct mouse_wheel_data : public mouse_data
 	{
 #if SDL_VERSION_ATLEAST(2,0,4)
 		wheel_direction direction;
@@ -101,15 +105,15 @@ namespace simple::interactive
 	struct key_released : key_event
 	{};
 
-	std::optional<float2> window_normalized_position(const common_mouse_data& data) noexcept;
-	std::optional<float2> screen_normalized_position(const common_mouse_data& data) noexcept;
+	std::optional<float2> window_normalized_position(const mouse_data& data) noexcept;
+	std::optional<float2> screen_normalized_position(const mouse_data& data) noexcept;
 	std::optional<float2> window_normalized_motion(const mouse_motion_data& data) noexcept;
 	std::optional<float2> screen_normalized_motion(const mouse_motion_data& data) noexcept;
 
-	template<typename event_data>
+	template<typename Data>
 	struct mouse_position_event
 	{
-		const event_data data;
+		const Data data;
 		auto window_normalized_position() const noexcept { return interactive::window_normalized_position(data); }
 		auto screen_normalized_position() const noexcept { return interactive::screen_normalized_position(data); }
 	};
@@ -138,6 +142,11 @@ namespace simple::interactive
 	struct mouse_up : public mouse_button_event
 	{};
 
+	struct quit_request
+	{
+		const event_data data;
+	};
+
 	using event = std::variant<
 		key_pressed
 		,key_released
@@ -145,6 +154,7 @@ namespace simple::interactive
 		,mouse_up
 		,mouse_motion
 		,mouse_wheel
+		,quit_request
 	>;
 
 	std::optional<event> next_event() noexcept;

@@ -14,8 +14,8 @@ namespace simple::interactive
 				case SDL_KEYDOWN:
 					return key_pressed
 					{
-						event.key.windowID,
 						std::chrono::milliseconds(event.key.timestamp),
+						event.key.windowID,
 						static_cast<keycode>(event.key.keysym.sym),
 						static_cast<scancode>(event.key.keysym.scancode),
 						static_cast<keystate>(event.key.state),
@@ -24,8 +24,8 @@ namespace simple::interactive
 				case SDL_KEYUP:
 					return key_released
 					{
-						event.key.windowID,
 						std::chrono::milliseconds(event.key.timestamp),
+						event.key.windowID,
 						static_cast<keycode>(event.key.keysym.sym),
 						static_cast<scancode>(event.key.keysym.scancode),
 						static_cast<keystate>(event.key.state),
@@ -34,8 +34,8 @@ namespace simple::interactive
 				case SDL_MOUSEBUTTONDOWN:
 					return mouse_down
 					{
-						event.button.windowID,
 						std::chrono::milliseconds(event.button.timestamp),
+						event.button.windowID,
 						event.button.which,
 						{event.button.x, event.button.y},
 						static_cast<mouse_button>(event.button.button),
@@ -45,8 +45,8 @@ namespace simple::interactive
 				case SDL_MOUSEBUTTONUP:
 					return mouse_up
 					{
-						event.button.windowID,
 						std::chrono::milliseconds(event.button.timestamp),
+						event.button.windowID,
 						event.button.which,
 						{event.button.x, event.button.y},
 						static_cast<mouse_button>(event.button.button),
@@ -58,8 +58,8 @@ namespace simple::interactive
 				case SDL_MOUSEMOTION:
 					return mouse_motion
 					{
-						event.motion.windowID,
 						std::chrono::milliseconds(event.motion.timestamp),
+						event.motion.windowID,
 						event.motion.which,
 						{event.motion.x, event.motion.y},
 						{event.motion.xrel, event.motion.yrel},
@@ -68,14 +68,17 @@ namespace simple::interactive
 				case SDL_MOUSEWHEEL:
 					return mouse_wheel
 					{
-						event.wheel.windowID,
 						std::chrono::milliseconds(event.wheel.timestamp),
+						event.wheel.windowID,
 						event.wheel.which,
 						{event.wheel.x, event.wheel.y},
 #if SDL_VERSION_ATLEAST(2,0,4)
 						static_cast<wheel_direction>(event.wheel.direction),
 #endif
 					};
+
+				case SDL_QUIT:
+					return quit_request{};
 			}
 		}
 		return std::nullopt;
@@ -120,7 +123,7 @@ namespace simple::interactive
 		return result;
 	}
 
-	std::optional<float2> window_normalized_position(const common_mouse_data& data) noexcept
+	std::optional<float2> window_normalized_position(const mouse_data& data) noexcept
 	{
 		return window_normalized(data.window_id, data.position);
 	}
@@ -155,7 +158,7 @@ namespace simple::interactive
 		return result;
 	}
 
-	std::optional<float2> screen_normalized_position(const common_mouse_data& data) noexcept
+	std::optional<float2> screen_normalized_position(const mouse_data& data) noexcept
 	{
 		return screen_normalized(data.window_id, data.position);
 	}
