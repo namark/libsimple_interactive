@@ -142,10 +142,29 @@ namespace simple::interactive
 	struct mouse_up : public mouse_button_event
 	{};
 
-	struct quit_request
-	{
-		const event_data data;
-	};
+	struct quit_request { const event_data data; };
+
+	// TODO: screen normalized position/size getters as with mouse?
+	struct window_vector_data : public window_event_data { int2 value; };
+
+	struct window_shown { const window_event_data data; };
+	struct window_hidden { const window_event_data data; };
+	struct window_exposed { const window_event_data data; };
+	struct window_moved { const window_vector_data data; };
+	struct window_resized { const window_vector_data data; };
+	struct window_size_changed { const window_vector_data data; };
+	struct window_minimized { const window_event_data data; };
+	struct window_maximized { const window_event_data data; };
+	struct window_restored { const window_event_data data; };
+	struct window_entered { const window_event_data data; };
+	struct window_left { const window_event_data data; };
+	struct window_focus_gained { const window_event_data data; };
+	struct window_focus_lost { const window_event_data data; };
+	struct window_closed { const window_event_data data; };
+#if SDL_VERSION_ATLEAST(2,0,5)
+	struct window_take_focus { const window_event_data data; };
+	struct window_hit_test { const window_event_data data; };
+#endif
 
 	using event = std::variant<
 		key_pressed
@@ -155,6 +174,25 @@ namespace simple::interactive
 		,mouse_motion
 		,mouse_wheel
 		,quit_request
+
+		,window_shown
+		,window_hidden
+		,window_exposed
+		,window_moved
+		,window_resized
+		,window_size_changed
+		,window_minimized
+		,window_maximized
+		,window_restored
+		,window_entered
+		,window_left
+		,window_focus_gained
+		,window_focus_lost
+		,window_closed
+#if SDL_VERSION_ATLEAST(2,0,5)
+		,window_take_focus
+		,window_hit_test
+#endif
 	>;
 
 	std::optional<event> next_event() noexcept;

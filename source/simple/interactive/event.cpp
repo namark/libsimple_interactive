@@ -1,8 +1,31 @@
 #include "event.h"
 #include "simple/sdlcore/utils.hpp"
 
+using simple::geom::vector;
+
 namespace simple::interactive
 {
+
+	template <typename WindowEvent>
+	auto make_window_event(const SDL_Event& event)
+	{
+		return WindowEvent
+		{
+			std::chrono::milliseconds(event.window.timestamp),
+			event.window.windowID,
+		};
+	}
+
+	template <typename WindowEvent>
+	auto make_window_vector_event(const SDL_Event& event)
+	{
+		return WindowEvent
+		{
+			std::chrono::milliseconds(event.window.timestamp),
+			event.window.windowID,
+			vector{event.window.data1, event.window.data2}
+		};
+	}
 
 	std::optional<event> next_event() noexcept
 	{
@@ -37,7 +60,7 @@ namespace simple::interactive
 						std::chrono::milliseconds(event.button.timestamp),
 						event.button.windowID,
 						event.button.which,
-						{event.button.x, event.button.y},
+						vector{event.button.x, event.button.y},
 						static_cast<mouse_button>(event.button.button),
 						static_cast<keystate>(event.button.state),
 						event.button.clicks
@@ -48,7 +71,7 @@ namespace simple::interactive
 						std::chrono::milliseconds(event.button.timestamp),
 						event.button.windowID,
 						event.button.which,
-						{event.button.x, event.button.y},
+						vector{event.button.x, event.button.y},
 						static_cast<mouse_button>(event.button.button),
 						static_cast<keystate>(event.button.state),
 #if SDL_VERSION_ATLEAST(2,0,2)
@@ -61,8 +84,8 @@ namespace simple::interactive
 						std::chrono::milliseconds(event.motion.timestamp),
 						event.motion.windowID,
 						event.motion.which,
-						{event.motion.x, event.motion.y},
-						{event.motion.xrel, event.motion.yrel},
+						vector{event.motion.x, event.motion.y},
+						vector{event.motion.xrel, event.motion.yrel},
 						static_cast<mouse_button_mask>(event.motion.state),
 					};
 				case SDL_MOUSEWHEEL:
@@ -71,11 +94,56 @@ namespace simple::interactive
 						std::chrono::milliseconds(event.wheel.timestamp),
 						event.wheel.windowID,
 						event.wheel.which,
-						{event.wheel.x, event.wheel.y},
+						vector{event.wheel.x, event.wheel.y},
 #if SDL_VERSION_ATLEAST(2,0,4)
 						static_cast<wheel_direction>(event.wheel.direction),
 #endif
 					};
+
+				case SDL_WINDOWEVENT: switch(event.window.event)
+				{
+					case SDL_WINDOWEVENT_SHOWN:
+						return make_window_event<window_shown>(event);
+					case SDL_WINDOWEVENT_HIDDEN:
+						return make_window_event<window_hidden>(event);
+					case SDL_WINDOWEVENT_EXPOSED:
+						return make_window_event<window_exposed>(event);
+					case SDL_WINDOWEVENT_MOVED:
+						return make_window_vector_event<window_moved>(event);
+					case SDL_WINDOWEVENT_RESIZED:
+						SDL_Log("Window %d resized to %dx%d",
+								event.window.windowID, event.window.data1,
+								event.window.data2);
+						break;
+					case SDL_WINDOWEVENT_SIZE_CHANGED:
+						SDL_Log("Window %d size changed to %dx%d",
+								event.window.windowID, event.window.data1,
+								event.window.data2);
+						break;
+					case SDL_WINDOWEVENT_MINIMIZED:
+						return make_window_event<window_minimized>(event);
+					case SDL_WINDOWEVENT_MAXIMIZED:
+						return make_window_event<window_maximized>(event);
+					case SDL_WINDOWEVENT_RESTORED:
+						return make_window_event<window_restored>(event);
+					case SDL_WINDOWEVENT_ENTER:
+						return make_window_event<window_entered>(event);
+					case SDL_WINDOWEVENT_LEAVE:
+						return make_window_event<window_left>(event);
+					case SDL_WINDOWEVENT_FOCUS_GAINED:
+						return make_window_event<window_focus_gained>(event);
+					case SDL_WINDOWEVENT_FOCUS_LOST:
+						return make_window_event<window_focus_lost>(event);
+					case SDL_WINDOWEVENT_CLOSE:
+						return make_window_event<window_closed>(event);
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+					case SDL_WINDOWEVENT_TAKE_FOCUS:
+						return make_window_event<window_take_focus>(event);
+					case SDL_WINDOWEVENT_HIT_TEST:
+						return make_window_event<window_hit_test>(event);
+#endif
+				}
+				break;
 
 				case SDL_QUIT:
 					return quit_request{};
