@@ -111,15 +111,9 @@ namespace simple::interactive
 					case SDL_WINDOWEVENT_MOVED:
 						return make_window_vector_event<window_moved>(event);
 					case SDL_WINDOWEVENT_RESIZED:
-						SDL_Log("Window %d resized to %dx%d",
-								event.window.windowID, event.window.data1,
-								event.window.data2);
-						break;
+						return make_window_vector_event<window_resized>(event);
 					case SDL_WINDOWEVENT_SIZE_CHANGED:
-						SDL_Log("Window %d size changed to %dx%d",
-								event.window.windowID, event.window.data1,
-								event.window.data2);
-						break;
+						return make_window_vector_event<window_size_changed>(event);
 					case SDL_WINDOWEVENT_MINIMIZED:
 						return make_window_event<window_minimized>(event);
 					case SDL_WINDOWEVENT_MAXIMIZED:
