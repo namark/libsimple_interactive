@@ -5,6 +5,17 @@ using simple::geom::vector;
 
 namespace simple::interactive
 {
+	template <typename T, size_t N, size_t... I>
+	constexpr auto copy_array_n(T(&arr)[N], std::index_sequence<I...>)
+	{
+		return std::array{arr[I]...};
+	}
+
+	template <typename T, size_t N>
+	constexpr auto to_array(T(&arr)[N])
+	{
+		return copy_array_n(arr, std::make_index_sequence<N>{});
+	}
 
 	template <typename WindowEvent>
 	auto make_window_event(const SDL_Event& event)
@@ -98,6 +109,51 @@ namespace simple::interactive
 #if SDL_VERSION_ATLEAST(2,0,4)
 						static_cast<wheel_direction>(event.wheel.direction),
 #endif
+					};
+				case SDL_TEXTINPUT:
+					return text_input
+					{
+						std::chrono::milliseconds(event.text.timestamp),
+						event.text.windowID,
+						to_array(event.text.text)
+					};
+				case SDL_TEXTEDITING:
+					return text_edit
+					{
+						std::chrono::milliseconds(event.edit.timestamp),
+						event.edit.windowID,
+						to_array(event.edit.text),
+						{event.edit.start, event.edit.start + event.edit.length}
+					};
+				case SDL_FINGERMOTION:
+					return pointer_motion
+					{
+						std::chrono::milliseconds(event.tfinger.timestamp),
+						event.tfinger.touchId,
+						event.tfinger.fingerId,
+						{event.tfinger.x, event.tfinger.y},
+						{event.tfinger.dx, event.tfinger.dy},
+						event.tfinger.pressure
+					};
+				case SDL_FINGERDOWN:
+					return pointer_down
+					{
+						std::chrono::milliseconds(event.tfinger.timestamp),
+						event.tfinger.touchId,
+						event.tfinger.fingerId,
+						{event.tfinger.x, event.tfinger.y},
+						{event.tfinger.dx, event.tfinger.dy},
+						event.tfinger.pressure
+					};
+				case SDL_FINGERUP:
+					return pointer_up
+					{
+						std::chrono::milliseconds(event.tfinger.timestamp),
+						event.tfinger.touchId,
+						event.tfinger.fingerId,
+						{event.tfinger.x, event.tfinger.y},
+						{event.tfinger.dx, event.tfinger.dy},
+						event.tfinger.pressure
 					};
 
 				case SDL_WINDOWEVENT: switch(event.window.event)

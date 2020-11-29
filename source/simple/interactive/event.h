@@ -68,7 +68,7 @@ namespace simple::interactive
 
 	struct mouse_data : public window_event_data
 	{
-		uint32_t mouse_id;
+		uint32_t device_id;
 		int2 position;
 	};
 
@@ -92,6 +92,25 @@ namespace simple::interactive
 #if SDL_VERSION_ATLEAST(2,0,4)
 		wheel_direction direction;
 #endif
+	};
+
+	struct text_input_data : public window_event_data
+	{
+		std::array<char, 32> text;
+	};
+
+	struct text_edit_data : public text_input_data
+	{
+		simple::support::range<int> edit_range;
+	};
+
+	struct pointer_data : public event_data
+	{
+		int64_t device_id;
+		int64_t pointer_id;
+		float2 position;
+		float2 motion;
+		float pressure;
 	};
 
 	struct key_event
@@ -142,6 +161,13 @@ namespace simple::interactive
 	struct mouse_up : public mouse_button_event
 	{};
 
+	struct text_input { const text_input_data data; };
+	struct text_edit { const text_edit_data data; };
+
+	struct pointer_motion { const pointer_data data; };
+	struct pointer_down { const pointer_data data; };
+	struct pointer_up { const pointer_data data; };
+
 	struct quit_request { const event_data data; };
 
 	// TODO: screen normalized position/size getters as with mouse?
@@ -173,6 +199,11 @@ namespace simple::interactive
 		,mouse_up
 		,mouse_motion
 		,mouse_wheel
+		,text_input
+		,text_edit
+		,pointer_motion
+		,pointer_down
+		,pointer_up
 		,quit_request
 
 		,window_shown
