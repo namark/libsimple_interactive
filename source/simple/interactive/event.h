@@ -36,6 +36,7 @@ namespace simple::interactive
 
 	enum class mouse_button_mask : uint32_t
 	{
+		none = 0,
 		left = SDL_BUTTON_LMASK,
 		right = SDL_BUTTON_RMASK,
 		middle = SDL_BUTTON_MMASK,
